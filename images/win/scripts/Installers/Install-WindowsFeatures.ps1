@@ -27,4 +27,4 @@ foreach ($feature in $windowsFeatures) {
 
 # it improves Android emulator launch on Windows Server
 # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/manage-hyper-v-scheduler-types
-# bcdedit /set hypervisorschedulertype root
+bcdedit /set hypervisorschedulertype root
