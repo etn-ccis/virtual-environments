@@ -14,6 +14,12 @@ jobs:
   - group: Image Generation Variables
 
   steps:
+  steps:
+  - checkout: ${{ parameters.repository_ref }}
+    clean: true
+    fetchDepth: 0
+    fetchTags: false
+    
   - task: PowerShell@2
     displayName: 'Download custom repository'
     condition: and(ne(variables['CUSTOM_REPOSITORY_URL'], ''), ne(variables['CUSTOM_REPOSITORY_BRANCH'], ''))
@@ -31,7 +37,7 @@ jobs:
         $ImageType = "${{ parameters.image_type }}"
         $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
         $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
-         $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
+        $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
         if ( -not (Test-Path $TemplatePath) ) {
             $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.json"
         }
