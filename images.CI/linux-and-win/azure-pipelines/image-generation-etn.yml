@@ -19,7 +19,6 @@ jobs:
   - group: Image Generation Variables
 
   steps:
-  steps:
   - checkout: ${{ parameters.repository_ref }}
     clean: true
     fetchDepth: 0
