@@ -148,7 +148,6 @@
             "scripts": [
                 "{{ template_dir }}/scripts/Installers/Configure-Antivirus.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-PowerShellModules.ps1",
-                "{{ template_dir }}/scripts/Installers/Install-WindowsFeatures.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-Choco.ps1",
                 "{{ template_dir }}/scripts/Installers/Initialize-VM.ps1",
                 "{{ template_dir }}/scripts/Installers/Update-ImageData.ps1",
