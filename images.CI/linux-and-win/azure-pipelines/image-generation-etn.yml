@@ -4,11 +4,6 @@
 # - https://github.community/t5/GitHub-Actions/GitHub-Actions-Manual-Trigger-Approvals/td-p/31504
 # - https://github.community/t5/GitHub-Actions/Protecting-github-workflows/td-p/30290
 
-parameters:
-  - name: repository_ref
-    type: string
-    default: 'self'
-
 jobs:
 - job:
   displayName: Image Generation (${{ parameters.image_type }})
@@ -19,11 +14,6 @@ jobs:
   - group: Image Generation Variables
 
   steps:
-  - checkout: ${{ parameters.repository_ref }}
-    clean: true
-    fetchDepth: 0
-    fetchTags: false
-
   - task: PowerShell@2
     displayName: 'Download custom repository'
     condition: and(ne(variables['CUSTOM_REPOSITORY_URL'], ''), ne(variables['CUSTOM_REPOSITORY_BRANCH'], ''))
