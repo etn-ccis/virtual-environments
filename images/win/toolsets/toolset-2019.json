@@ -443,7 +443,7 @@
             { "name": "innosetup" },
             { "name": "jq" },
             { "name": "NuGet.CommandLine" },
-            { "name": "packer --version=1.8.4" },
+            { "name": "packer" },
             { "name": "strawberryperl" },
             { "name": "pulumi" },
             { "name": "tortoisesvn" },
