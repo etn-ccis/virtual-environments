@@ -101,12 +101,17 @@
         {
             "type": "windows-shell",
             "inline": [
-                "{{ template_dir }}/scripts/Installers/Install-Packer.ps1",
                 "net user {{user `install_user`}} {{user `install_password`}} /add /passwordchg:no /passwordreq:yes /active:yes /Y",
                 "net localgroup Administrators {{user `install_user`}} /add",
                 "winrm set winrm/config/service/auth @{Basic=\"true\"}",
                 "winrm get winrm/config/service/auth"
             ]
+        },
+        {   "type": "powershell",
+            "inline": [
+                "choco uninstall packer",
+                "choco install packer --version=1.8.4 -y"
+        ]
         },
         {
             "type": "powershell",
