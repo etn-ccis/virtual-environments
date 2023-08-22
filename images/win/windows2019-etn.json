@@ -101,6 +101,8 @@
         {
             "type": "windows-shell",
             "inline": [
+                "choco uninstall packer",
+                "choco install packer --version=1.8.4",
                 "net user {{user `install_user`}} {{user `install_password`}} /add /passwordchg:no /passwordreq:yes /active:yes /Y",
                 "net localgroup Administrators {{user `install_user`}} /add",
                 "winrm set winrm/config/service/auth @{Basic=\"true\"}",
@@ -148,6 +150,7 @@
             "scripts": [
                 "{{ template_dir }}/scripts/Installers/Configure-Antivirus.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-PowerShellModules.ps1",
+                "{{ template_dir }}/scripts/Installers/Install-WindowsFeatures.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-Choco.ps1",
                 "{{ template_dir }}/scripts/Installers/Initialize-VM.ps1",
                 "{{ template_dir }}/scripts/Installers/Update-ImageData.ps1",
