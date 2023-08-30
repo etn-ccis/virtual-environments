@@ -107,12 +107,6 @@
                 "winrm get winrm/config/service/auth"
             ]
         },
-        {   "type": "powershell",
-            "inline": [
-                "choco uninstall packer",
-                "choco install packer --version=1.8.4 -y"
-        ]
-        },
         {
             "type": "powershell",
             "inline": [
