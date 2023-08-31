@@ -162,7 +162,6 @@
                 "{{ template_dir }}/scripts/Installers/Install-PowerShellModules.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-WindowsFeatures.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-Choco.ps1",
-                "{{ template_dir }}/scripts/Installers/Install-AWS.ps1",
                 "{{ template_dir }}/scripts/Installers/Initialize-VM.ps1",
                 "{{ template_dir }}/scripts/Installers/Update-ImageData.ps1",
                 "{{ template_dir }}/scripts/Installers/Update-DotnetTLS.ps1"
@@ -257,7 +256,7 @@
                 "{{ template_dir }}/scripts/Installers/Install-Msys2.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-WinAppDriver.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-R.ps1",
-                
+                "{{ template_dir }}/scripts/Installers/Install-AWS.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-DACFx.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-SQLPowerShellTools.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-SQLOLEDBDriver.ps1",
