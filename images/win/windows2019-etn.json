@@ -158,6 +158,7 @@
                 "IMAGEDATA_FILE={{user `imagedata_file`}}"
             ],
             "scripts": [
+                "{{ template_dir }}/scripts/Installers/Install-AWS.ps1",
                 "{{ template_dir }}/scripts/Installers/Configure-Antivirus.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-PowerShellModules.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-WindowsFeatures.ps1",
@@ -256,7 +257,7 @@
                 "{{ template_dir }}/scripts/Installers/Install-Msys2.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-WinAppDriver.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-R.ps1",
-                "{{ template_dir }}/scripts/Installers/Install-AWS.ps1",
+                
                 "{{ template_dir }}/scripts/Installers/Install-DACFx.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-SQLPowerShellTools.ps1",
                 "{{ template_dir }}/scripts/Installers/Install-SQLOLEDBDriver.ps1",
