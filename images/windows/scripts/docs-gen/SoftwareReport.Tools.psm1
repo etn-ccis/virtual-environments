@@ -115,6 +115,12 @@ function Get-GNUBinutilsVersion {
     return $mingwVersion
 }
 
+function Get-GNUBinutilsVersion {
+    (ld --version | Select-String -Pattern "GNU Binutils") -match "(?<version>\d+\.\d+)" | Out-Null
+    $mingwVersion = $Matches.Version
+    return $mingwVersion
+}
+
 #comment "function Get-MySQLVersion" as we are not installing MySQL
 # function Get-MySQLVersion {
 #     $mysqlCommand = Get-Command -Name "mysql"
