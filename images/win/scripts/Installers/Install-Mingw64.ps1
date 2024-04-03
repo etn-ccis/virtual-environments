@@ -12,7 +12,6 @@
 # Copy-Item -Path $path -Destination (Join-Path $path.Directory 'make.exe')
 
 # Invoke-PesterTests -TestFile "Tools" -TestName "Mingw64"
-
 if (Test-IsWin19) {
     # If Windows 2019, install version 8.1.0 form sourceforge
     $baseUrl = "https://sourceforge.net/projects/mingw-w64/files"
