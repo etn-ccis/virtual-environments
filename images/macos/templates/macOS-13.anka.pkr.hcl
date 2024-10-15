@@ -24,6 +24,11 @@ variable "source_vm_name" {
   type = string
 }
 
+variable "source_vm_port" {
+  type = number
+  default = 22
+}
+
 variable "source_vm_tag" {
   type = string
   default = ""
@@ -49,8 +54,9 @@ variable "vm_password" {
 }
 
 variable "github_api_pat" {
-  type    = string
-  default = ""
+  type      = string
+  sensitive = true
+  default   = ""
 }
 
 variable "xcode_install_storage_url" {
@@ -89,6 +95,7 @@ source "veertu-anka-vm-clone" "template" {
 
 source "null" "template" {
   ssh_host = "${var.source_vm_name}"
+  ssh_port = "${var.source_vm_port}"
   ssh_username = "${var.vm_username}"
   ssh_password = "${var.vm_password}"
   ssh_proxy_host = "${var.socks_proxy}"
@@ -151,7 +158,7 @@ build {
       "mv ${local.image_folder}/docs-gen ${local.image_folder}/software-report",
       "mv ${local.image_folder}/xamarin-selector ${local.image_folder}/assets",
       "mkdir ~/utils",
-      "mv ${local.image_folder}/helpers/confirm-identified-developers.scpt ~/utils",
+      "mv ${local.image_folder}/helpers/confirm-identified-developers-macos13.scpt ~/utils",
       "mv ${local.image_folder}/helpers/invoke-tests.sh ~/utils",
       "mv ${local.image_folder}/helpers/utils.sh ~/utils",
       "mv ${local.image_folder}/helpers/xamarin-utils.sh ~/utils"
@@ -171,6 +178,7 @@ build {
     execute_command  = "chmod +x {{ .Path }}; source $HOME/.bash_profile; sudo {{ .Vars }} {{ .Path }}"
     scripts          = [
       "${path.root}/../scripts/build/configure-tccdb-macos.sh",
+      "${path.root}/../scripts/build/configure-autologin.sh",
       "${path.root}/../scripts/build/configure-auto-updates.sh",
       "${path.root}/../scripts/build/configure-ntpconf.sh",
       "${path.root}/../scripts/build/configure-shell.sh"
