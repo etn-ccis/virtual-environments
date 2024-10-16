@@ -4,39 +4,39 @@
 # - https://github.community/t5/GitHub-Actions/GitHub-Actions-Manual-Trigger-Approvals/td-p/31504
 # - https://github.community/t5/GitHub-Actions/Protecting-github-workflows/td-p/30290
 
-parameters:
-  - name: job_id
-    type: string
-    default: 'generate_image'
+# parameters:
+#   - name: job_id
+#     type: string
+#     default: 'generate_image'
 
-  - name: image_type
-    type: string
+#   - name: image_type
+#     type: string
 
-  - name: image_template_name
-    type: string
+#   - name: image_template_name
+#     type: string
 
-  - name: image_readme_name
-    type: string
+#   - name: image_readme_name
+#     type: string
 
-  # - name: agent_pool
-  #   type: object
-  #   default:
-  #     name: 'ci-agent-pool'
+#   - name: agent_pool
+#     type: object
+#     default:
+#       name: 'ci-agent-pool'
 
-  - name: variable_group_name
-    type: string
-    default: 'Image Generation Variables'
+#   - name: variable_group_name
+#     type: string
+#     default: 'Image Generation Variables'
 
-  # - name: create_release
-  #   type: boolean
-  #   default: true
+#   - name: create_release
+#     type: boolean
+#     default: true
 
-  # - name: repository_ref
-  #   type: string
-  #   default: 'self'
+#   - name: repository_ref
+#     type: string
+#     default: 'self'
 
 jobs:
-- job: ${{ parameters.job_id }}
+- job:
   displayName: Image Generation (${{ parameters.image_type }})
   timeoutInMinutes: 600
   cancelTimeoutInMinutes: 30
