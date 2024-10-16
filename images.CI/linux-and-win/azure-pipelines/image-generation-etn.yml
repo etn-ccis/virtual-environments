@@ -23,39 +23,81 @@ jobs:
       arguments: -RepoUrl $(CUSTOM_REPOSITORY_URL) `
                  -RepoBranch $(CUSTOM_REPOSITORY_BRANCH)
     
-  - task: PowerShell@2
-    displayName: 'Set image template variables'
+  - task: AzureCLI@2
+    displayName: 'Set variables'
     inputs:
-      targetType: 'inline'
-      script: |
+      azureSubscription: 'spn-hosted-runners'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
         $ImageType = "${{ parameters.image_type }}"
-        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
+        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "ubuntu/templates" } else { "windows/templates" }
         $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
-        $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
-        if ( -not (Test-Path $TemplatePath) ) {
-            $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.json"
-        }
+
+        $TemplateFileName = "${{ parameters.image_template_name }}"
+        $TemplatePath = Join-Path $TemplateDirectoryPath $TemplateFileName
         Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
         Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
+
+        $ManagedImageName = "${{ parameters.image_type }}-$(Build.BuildId)"
+        Write-Host "##vso[task.setvariable variable=ManagedImageName;]$ManagedImageName"
+
+        $TempResourceGroupName = "packer-temp-$ManagedImageName"
+        Write-Host "##vso[task.setvariable variable=TempResourceGroupName;]$TempResourceGroupName"
+
+        $clientSecret = $(az keyvault secret show --name "spnhostedrunners" --vault-name "gh-imagegeneration" --query value -o tsv)
+        Write-Host "##vso[task.setvariable variable=ClientSecret;issecret=true]$clientSecret"
+  # - task: PowerShell@2
+  #   displayName: 'Set image template variables'
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: |
+  #       $ImageType = "${{ parameters.image_type }}"
+  #       $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
+  #       $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
+  #       $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
+  #       if ( -not (Test-Path $TemplatePath) ) {
+  #           $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.json"
+  #       }
+  #       Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
+  #       Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
 
   - task: PowerShell@2
     displayName: 'Build VM'
     inputs:
       targetType: filePath
-      filePath: ./images.CI/linux-and-win/build-image-etn.ps1
-      arguments: -ResourcesNamePrefix $(Build.BuildId) `
-                        -ClientId $(CLIENT_ID) `
-                        -ClientSecret $(CLIENT_SECRET) `
-                        -TemplatePath $(TemplatePath) `
-                        -ResourceGroup $(AZURE_RESOURCE_GROUP) `
-                        -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
-                        -SubscriptionId $(AZURE_SUBSCRIPTION) `
-                        -TenantId $(AZURE_TENANT) `
-                        -Location $(AZURE_LOCATION) `
-                        -VirtualNetworkName $(BUILD_AGENT_VNET_NAME) `
-                        -VirtualNetworkRG $(BUILD_AGENT_VNET_RESOURCE_GROUP) `
-                        -VirtualNetworkSubnet $(BUILD_AGENT_SUBNET_NAME) `
-                        -ImageName $(Build.BuildNumber)
+      filePath: ./images.CI/linux-and-win/build-image.ps1
+      arguments: -ClientId $(CLIENT_ID) `
+                 -ClientSecret "$(ClientSecret)" `
+                 -TemplatePath $(TemplatePath) `
+                 -ImageName "$(ManagedImageName)" `
+                 -ImageResourceGroupName $(AZURE_RESOURCE_GROUP) `
+                 -TempResourceGroupName "$(TempResourceGroupName)" `
+                 -SubscriptionId $(AZURE_SUBSCRIPTION) `
+                 -TenantId $(AZURE_TENANT) `
+                 -Location $(AZURE_LOCATION) `
+                 -VirtualNetworkName $(BUILD_AGENT_VNET_NAME) `
+                 -VirtualNetworkRG $(BUILD_AGENT_VNET_RESOURCE_GROUP) `
+                 -VirtualNetworkSubnet $(BUILD_AGENT_SUBNET_NAME)
+
+  # - task: PowerShell@2
+  #   displayName: 'Build VM'
+  #   inputs:
+  #     targetType: filePath
+  #     filePath: ./images.CI/linux-and-win/build-image-etn.ps1
+  #     arguments: -ResourcesNamePrefix $(Build.BuildId) `
+  #                       -ClientId $(CLIENT_ID) `
+  #                       -ClientSecret $(CLIENT_SECRET) `
+  #                       -TemplatePath $(TemplatePath) `
+  #                       -ResourceGroup $(AZURE_RESOURCE_GROUP) `
+  #                       -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
+  #                       -SubscriptionId $(AZURE_SUBSCRIPTION) `
+  #                       -TenantId $(AZURE_TENANT) `
+  #                       -Location $(AZURE_LOCATION) `
+  #                       -VirtualNetworkName $(BUILD_AGENT_VNET_NAME) `
+  #                       -VirtualNetworkRG $(BUILD_AGENT_VNET_RESOURCE_GROUP) `
+  #                       -VirtualNetworkSubnet $(BUILD_AGENT_SUBNET_NAME) `
+  #                       -ImageName $(Build.BuildNumber)
     env:
       PACKER_LOG: 1
       PACKER_LOG_PATH: $(Build.ArtifactStagingDirectory)/packer-log.txt
@@ -82,10 +124,22 @@ jobs:
     inputs:
       targetType: filePath
       filePath: ./images.CI/linux-and-win/cleanup.ps1
-      arguments: -ResourcesNamePrefix $(Build.BuildId) `
-                     -Image ${{ parameters.image_type }} `
-                     -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
-                     -SubscriptionId $(AZURE_SUBSCRIPTION) `
-                     -ClientId $(CLIENT_ID) `
-                     -ClientSecret $(CLIENT_SECRET) `
-                     -TenantId $(AZURE_TENANT)
+      arguments: -TempResourceGroupName "$(TempResourceGroupName)" `
+                 -SubscriptionId $(AZURE_SUBSCRIPTION) `
+                 -ClientId $(CLIENT_ID) `
+                 -ClientSecret "$(ClientSecret)" `
+                 -TenantId $(AZURE_TENANT)
+
+  # - task: PowerShell@2
+  #   displayName: 'Clean up resources'
+  #   condition: always()
+  #   inputs:
+  #     targetType: filePath
+  #     filePath: ./images.CI/linux-and-win/cleanup.ps1
+  #     arguments: -ResourcesNamePrefix $(Build.BuildId) `
+  #                    -Image ${{ parameters.image_type }} `
+  #                    -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
+  #                    -SubscriptionId $(AZURE_SUBSCRIPTION) `
+  #                    -ClientId $(CLIENT_ID) `
+  #                    -ClientSecret $(CLIENT_SECRET) `
+  #                    -TenantId $(AZURE_TENANT)
