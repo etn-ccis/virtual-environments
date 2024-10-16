@@ -23,44 +23,45 @@ jobs:
       arguments: -RepoUrl $(CUSTOM_REPOSITORY_URL) `
                  -RepoBranch $(CUSTOM_REPOSITORY_BRANCH)
     
-  - task: AzureCLI@2
-    displayName: 'Set variables'
-    inputs:
-      azureSubscription: 'spn-hosted-runners'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        $ImageType = "${{ parameters.image_type }}"
-        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "ubuntu/templates" } else { "windows/templates" }
-        $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
-
-        $TemplateFileName = "${{ parameters.image_template_name }}"
-        $TemplatePath = Join-Path $TemplateDirectoryPath $TemplateFileName
-        Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
-        Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
-
-        $ManagedImageName = "${{ parameters.image_type }}-$(Build.BuildId)"
-        Write-Host "##vso[task.setvariable variable=ManagedImageName;]$ManagedImageName"
-
-        $TempResourceGroupName = "packer-temp-$ManagedImageName"
-        Write-Host "##vso[task.setvariable variable=TempResourceGroupName;]$TempResourceGroupName"
-
-        $clientSecret = $(az keyvault secret show --name "spnhostedrunners" --vault-name "gh-imagegeneration" --query value -o tsv)
-        Write-Host "##vso[task.setvariable variable=ClientSecret;issecret=true]$clientSecret"
-  # - task: PowerShell@2
-  #   displayName: 'Set image template variables'
+  # - task: AzureCLI@2
+  #   displayName: 'Set variables'
   #   inputs:
-  #     targetType: 'inline'
-  #     script: |
+  #     azureSubscription: 'spn-hosted-runners'
+  #     scriptType: 'pscore'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: |
   #       $ImageType = "${{ parameters.image_type }}"
-  #       $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
+  #       $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "ubuntu/templates" } else { "windows/templates" }
   #       $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
-  #       $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
-  #       if ( -not (Test-Path $TemplatePath) ) {
-  #           $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.json"
-  #       }
+
+  #       $TemplateFileName = "${{ parameters.image_template_name }}"
+  #       $TemplatePath = Join-Path $TemplateDirectoryPath $TemplateFileName
   #       Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
   #       Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
+
+  #       $ManagedImageName = "${{ parameters.image_type }}-$(Build.BuildId)"
+  #       Write-Host "##vso[task.setvariable variable=ManagedImageName;]$ManagedImageName"
+
+  #       $TempResourceGroupName = "packer-temp-$ManagedImageName"
+  #       Write-Host "##vso[task.setvariable variable=TempResourceGroupName;]$TempResourceGroupName"
+
+  #       $clientSecret = $(az keyvault secret show --name "spnhostedrunners" --vault-name "gh-imagegeneration" --query value -o tsv)
+  #       Write-Host "##vso[task.setvariable variable=ClientSecret;issecret=true]$clientSecret"
+
+  - task: PowerShell@2
+    displayName: 'Set image template variables'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $ImageType = "${{ parameters.image_type }}"
+        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
+        $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
+        $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
+        if ( -not (Test-Path $TemplatePath) ) {
+            $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.json"
+        }
+        Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
+        Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
 
   - task: PowerShell@2
     displayName: 'Build VM'
@@ -129,7 +130,7 @@ jobs:
                  -ClientId $(CLIENT_ID) `
                  -ClientSecret "$(ClientSecret)" `
                  -TenantId $(AZURE_TENANT)
-
+                 
   # - task: PowerShell@2
   #   displayName: 'Clean up resources'
   #   condition: always()
