@@ -98,7 +98,8 @@ jobs:
     inputs:
       targetType: filePath
       filePath: ./images.CI/linux-and-win/build-image-etn.ps1
-      arguments: -ClientId $(CLIENT_ID) `
+      arguments: -ResourcesNamePrefix $(Build.BuildId) `
+                 -ClientId $(CLIENT_ID) `
                  -ClientSecret "$(ClientSecret)" `
                  -TemplatePath $(TemplatePath) `
                  -ImageName "$(ManagedImageName)" `
