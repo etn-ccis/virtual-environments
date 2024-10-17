@@ -4,45 +4,45 @@
 # - https://github.community/t5/GitHub-Actions/GitHub-Actions-Manual-Trigger-Approvals/td-p/31504
 # - https://github.community/t5/GitHub-Actions/Protecting-github-workflows/td-p/30290
 
-# parameters:
-#   - name: job_id
-#     type: string
-#     default: 'generate_image'
+parameters:
+  - name: job_id
+    type: string
+    default: 'generate_image'
 
-#   - name: image_type
-#     type: string
+  - name: image_type
+    type: string
 
-#   - name: image_template_name
-#     type: string
+  - name: image_template_name
+    type: string
 
-#   - name: image_readme_name
-#     type: string
+  - name: image_readme_name
+    type: string
 
-#   - name: agent_pool
-#     type: object
-#     default:
-#       name: 'ci-agent-pool'
+  # - name: agent_pool
+  #   type: object
+  #   default:
+  #     name: 'ci-agent-pool'
 
-#   - name: variable_group_name
-#     type: string
-#     default: 'Image Generation Variables'
+  - name: variable_group_name
+    type: string
+    default: 'Image Generation Variables'
 
-#   - name: create_release
-#     type: boolean
-#     default: true
+  # - name: create_release
+  #   type: boolean
+  #   default: true
 
-#   - name: repository_ref
-#     type: string
-#     default: 'self'
+  # - name: repository_ref
+  #   type: string
+  #   default: 'self'
 
 jobs:
-- job:
+- job: ${{ parameters.job_id }}
   displayName: Image Generation (${{ parameters.image_type }})
   timeoutInMinutes: 600
   cancelTimeoutInMinutes: 30
   pool: $(BUILD_POOL)
   variables:
-  - group: Image Generation Variables
+  - group: ${{ parameters.variable_group_name }}
 
   steps:
   - task: PowerShell@2
@@ -84,22 +84,29 @@ jobs:
       targetType: 'inline'
       script: |
         $ImageType = "${{ parameters.image_type }}"
-        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "linux" } else { "win" }
+        $TemplateDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "ubuntu/templates" } else { "windows/templates" }
         $TemplateDirectoryPath = Join-Path "images" $TemplateDirectoryName | Resolve-Path
-        $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType.pkr.hcl"
-        if ( -not (Test-Path $TemplatePath) ) {
-            $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.pkr.hcl"
-        }
-        Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
-        Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
+
+        $TemplateFileName = "${{ parameters.image_template_name }}"
+        $TemplatePath = Join-Path $TemplateDirectoryPath $TemplateFileName
+        $ManagedImageName = "${{ parameters.image_type }}-$(Build.BuildId)"
+        Write-Host "##vso[task.setvariable variable=ManagedImageName;]$ManagedImageName"
+
+        $TempResourceGroupName = "packer-temp-$ManagedImageName"
+        Write-Host "##vso[task.setvariable variable=TempResourceGroupName;]$TempResourceGroupName"
+
+        # if ( -not (Test-Path $TemplatePath) ) {
+        #     $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.pkr.hcl"
+        # }
+        # Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
+        # Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
 
   - task: PowerShell@2
     displayName: 'Build VM'
     inputs:
       targetType: filePath
       filePath: ./images.CI/linux-and-win/build-image-etn.ps1
-      arguments: -ResourcesNamePrefix $(Build.BuildId) `
-                 -ClientId $(CLIENT_ID) `
+      arguments: -ClientId $(CLIENT_ID) `
                  -ClientSecret "$(ClientSecret)" `
                  -TemplatePath $(TemplatePath) `
                  -ImageName "$(ManagedImageName)" `
