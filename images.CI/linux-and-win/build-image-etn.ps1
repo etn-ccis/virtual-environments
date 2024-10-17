@@ -1,7 +1,7 @@
 param(
     [String] [Parameter (Mandatory=$true)] $TemplatePath,
     [String] [Parameter (Mandatory=$true)] $ClientId,
-    [String] [Parameter (Mandatory=$false)] $ClientSecret,
+    [String] [Parameter (Mandatory=$true)] $ClientSecret,
     [String] [Parameter (Mandatory=$true)] $Location,
     [String] [Parameter (Mandatory=$true)] $ImageName,
     [String] [Parameter (Mandatory=$true)] $ImageResourceGroupName,
