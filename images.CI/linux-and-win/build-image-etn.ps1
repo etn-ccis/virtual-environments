@@ -50,8 +50,7 @@ packer validate -syntax-only $TemplatePath
 
 Write-Host "Build $Image VM"
 Write-Host "Build $ImageTemplateName VM"
-packer build    -var "capture_name_prefix=$ResourcesNamePrefix" `
-                -var "client_id=$ClientId" `
+packer build    -var "client_id=$ClientId" `
                 -var "client_secret=$ClientSecret" `
                 -var "install_password=$InstallPassword" `
                 -var "location=$Location" `
