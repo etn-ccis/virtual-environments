@@ -65,7 +65,7 @@ jobs:
 
         $TemplateFileName = "${{ parameters.image_template_name }}"
         $TemplatePath = Join-Path $TemplateDirectoryPath $TemplateFileName
-        $ManagedImageName = "${{ parameters.image_type }}-$(Build.BuildId)"
+        $ManagedImageName = "$(Build.BuildNumber)"
         Write-Host "##vso[task.setvariable variable=ManagedImageName;]$ManagedImageName"
 
         $TempResourceGroupName = "packer-temp-$ManagedImageName"
