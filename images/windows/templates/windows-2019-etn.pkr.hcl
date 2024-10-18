@@ -232,10 +232,6 @@ build {
   }
 
   provisioner "powershell" {
-    inline = ["if (-not ((net localgroup Administrators) -contains '${var.install_user}')) { exit 1 }"]
-  }
-
-  provisioner "powershell" {
     elevated_password = "${var.install_password}"
     elevated_user     = "${var.install_user}"
     inline            = ["bcdedit.exe /set TESTSIGNING ON"]
@@ -246,6 +242,22 @@ build {
     elevated_user     = "${var.install_user}"
     scripts           = ["${path.root}/../scripts/build/Install-NET48.ps1"]
     valid_exit_codes  = [0, 3010]
+  }
+
+  provisioner "powershell" {
+    inline = ["if (-not ((net localgroup Administrators) -contains '${var.install_user}')) { exit 1 }"]
+  }
+
+  provisioner "powershell" {
+    inline = [
+      "echo 'waiting 30 min for agents to install'",
+      "Start-Sleep -Seconds 1800",
+      "echo 'done waiting for agents to install'",
+      "winrm quickconfig -q",
+      "echo 'ran quickconfig'",
+      "Start-Sleep -Seconds 60",
+      "Test-WsMan localhost"
+    ]
   }
 
   provisioner "windows-restart" {
