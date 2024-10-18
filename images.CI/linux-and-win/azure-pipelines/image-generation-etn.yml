@@ -122,7 +122,10 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Get-Content -Path (Join-Path "$(TemplateDirectoryPath)" "${{ parameters.image_readme_name }}")
+        $ImageType = "${{ parameters.image_type }}"
+        $rootDirectoryName = if ($ImageType.StartsWith("ubuntu")) { "ubuntu" } else { "windows" }
+        $rootDirectoryPath = Join-Path "images" $rootDirectoryName | Resolve-Path
+        Get-Content -Path (Join-Path "$($rootDirectoryPath)" "${{ parameters.image_readme_name }}")
 
   - task: PowerShell@2
     displayName: 'Print provisioners duration'
