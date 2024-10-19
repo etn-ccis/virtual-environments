@@ -20,7 +20,7 @@ if (-not (Test-Path $TemplatePath))
     exit 1
 }
 
-$ImageTemplateName = [io.path]::GetFileName($TemplatePath).Split(".")[0]
+$ImageTemplateName = [io.path]::GetFileName($TemplatePath).Split(".pkr.hcl")
 $InstallPassword = [System.GUID]::NewGuid().ToString().ToUpper()
 
 $SensitiveData = @(
@@ -42,7 +42,6 @@ packer init $TemplatePath
 Write-Host "Validate packer template"
 packer validate -syntax-only $TemplatePath
 
-Write-Host "Build $Image VM"
 Write-Host "Build $ImageTemplateName VM"
 packer build    -var "client_id=$ClientId" `
                 -var "client_secret=$ClientSecret" `
