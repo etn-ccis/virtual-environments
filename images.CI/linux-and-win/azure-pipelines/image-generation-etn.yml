@@ -18,22 +18,9 @@ parameters:
   - name: image_readme_name
     type: string
 
-  # - name: agent_pool
-  #   type: object
-  #   default:
-  #     name: 'ci-agent-pool'
-
   - name: variable_group_name
     type: string
     default: 'Image Generation Variables'
-
-  # - name: create_release
-  #   type: boolean
-  #   default: true
-
-  # - name: repository_ref
-  #   type: string
-  #   default: 'self'
 
 jobs:
 - job: ${{ parameters.job_id }}
@@ -71,9 +58,6 @@ jobs:
         $TempResourceGroupName = "packer-temp-$ManagedImageName"
         Write-Host "##vso[task.setvariable variable=TempResourceGroupName;]$TempResourceGroupName"
 
-        # if ( -not (Test-Path $TemplatePath) ) {
-        #     $TemplatePath = Join-Path $TemplateDirectoryPath "$ImageType-etn.pkr.hcl"
-        # }
         Write-Host "##vso[task.setvariable variable=TemplateDirectoryPath;]$TemplateDirectoryPath"
         Write-Host "##vso[task.setvariable variable=TemplatePath;]$TemplatePath"
 
@@ -95,24 +79,6 @@ jobs:
                  -VirtualNetworkRG $(BUILD_AGENT_VNET_RESOURCE_GROUP) `
                  -VirtualNetworkSubnet $(BUILD_AGENT_SUBNET_NAME)
 
-  # - task: PowerShell@2
-  #   displayName: 'Build VM'
-  #   inputs:
-  #     targetType: filePath
-  #     filePath: ./images.CI/linux-and-win/build-image-etn.ps1
-  #     arguments: -ResourcesNamePrefix $(Build.BuildId) `
-  #                       -ClientId $(CLIENT_ID) `
-  #                       -ClientSecret $(CLIENT_SECRET) `
-  #                       -TemplatePath $(TemplatePath) `
-  #                       -ResourceGroup $(AZURE_RESOURCE_GROUP) `
-  #                       -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
-  #                       -SubscriptionId $(AZURE_SUBSCRIPTION) `
-  #                       -TenantId $(AZURE_TENANT) `
-  #                       -Location $(AZURE_LOCATION) `
-  #                       -VirtualNetworkName $(BUILD_AGENT_VNET_NAME) `
-  #                       -VirtualNetworkRG $(BUILD_AGENT_VNET_RESOURCE_GROUP) `
-  #                       -VirtualNetworkSubnet $(BUILD_AGENT_SUBNET_NAME) `
-  #                       -ImageName $(Build.BuildNumber)
     env:
       PACKER_LOG: 1
       PACKER_LOG_PATH: $(Build.ArtifactStagingDirectory)/packer-log.txt
@@ -147,17 +113,3 @@ jobs:
                  -ClientId $(CLIENT_ID) `
                  -ClientSecret "$(CLIENT_SECRET)" `
                  -TenantId $(AZURE_TENANT)
-                 
-  # - task: PowerShell@2
-  #   displayName: 'Clean up resources'
-  #   condition: always()
-  #   inputs:
-  #     targetType: filePath
-  #     filePath: ./images.CI/linux-and-win/cleanup.ps1
-  #     arguments: -ResourcesNamePrefix $(Build.BuildId) `
-  #                    -Image ${{ parameters.image_type }} `
-  #                    -StorageAccount $(AZURE_STORAGE_ACCOUNT) `
-  #                    -SubscriptionId $(AZURE_SUBSCRIPTION) `
-  #                    -ClientId $(CLIENT_ID) `
-  #                    -ClientSecret $(CLIENT_SECRET) `
-  #                    -TenantId $(AZURE_TENANT)

@@ -20,14 +20,8 @@ if (-not (Test-Path $TemplatePath))
     exit 1
 }
 
-# $Image = [io.path]::GetFileName($TemplatePath).Split(".")[0]
-# $TempResourceGroupName = "${ResourcesNamePrefix}_${Image}"
-# $InstallPassword = [System.GUID]::NewGuid().ToString().ToUpper()
-
 $ImageTemplateName = [io.path]::GetFileName($TemplatePath).Split(".")[0]
 $InstallPassword = [System.GUID]::NewGuid().ToString().ToUpper()
-
-# packer validate -syntax-only $TemplatePath
 
 $SensitiveData = @(
     'OSType',
