@@ -20,7 +20,7 @@ if (-not (Test-Path $TemplatePath))
     exit 1
 }
 
-$ImageTemplateName = [io.path]::GetFileName($TemplatePath).Split(".pkr.hcl")
+$ImageTemplateName = [io.path]::GetFileName($TemplatePath).Split(".")[0]
 $InstallPassword = [System.GUID]::NewGuid().ToString().ToUpper()
 
 $SensitiveData = @(
