@@ -201,7 +201,7 @@ class ToolVersionsListNode: BaseToolNode {
 
     ToolVersionsListNode([String] $ToolName, [String[]] $Versions, [String] $MajorVersionRegex, [String] $ListType): base($ToolName) {
         $this.Versions = $Versions
-
+        
          if ([String]::IsNullOrEmpty($Versions)) {
             throw "ToolVersionsListNode '$($this.ToolName)' has empty versions list"
         }
