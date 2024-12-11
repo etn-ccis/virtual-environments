@@ -22,7 +22,7 @@ Describe "WindowsFeatures" {
 Describe "DiskSpace" {
     It "The image has enough disk space"{
         $availableSpaceMB = [math]::Round((Get-PSDrive -Name C).Free / 1MB)
-        $minimumFreeSpaceMB = 5 * 1024
+        $minimumFreeSpaceMB = 18 * 1024
 
         $availableSpaceMB | Should -BeGreaterThan $minimumFreeSpaceMB
     }
